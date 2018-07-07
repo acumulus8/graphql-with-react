@@ -1,14 +1,24 @@
 //contains all of the knowledge required for telling graphql exactly what the applications data looks like. most importantly what properties each object has, and how exactly how each object is related to eachother
 const graphql = require("graphql");
-const _ = require("lodash");
+const axios = require("axios");
+/* const _ = require("lodash"); // only used for hard coded data and deleted there after.*/
 //helpers from the graphql library:
 const { GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLSchema } = graphql;
 
 //this is just the hardcoded user data we will work with rather than database data
-const users = [
+/* const users = [
   { id: "23", firstName: "Bill", age: "20" },
   { id: "47", firstName: "Samantha", age: "21" }
-];
+]; */
+
+const CompanyType = new GraphQLObjectType({
+  name: "Company",
+  fields: {
+    id: { type: GraphQLString },
+    name: { type: GraphQLString },
+    description: { type: GraphQLString }
+  }
+})
 
 const UserType = new GraphQLObjectType({
   name: "User",
@@ -26,7 +36,8 @@ const RootQuery = new GraphQLObjectType({
       type: UserType,
       args: { id: { type: GraphQLString } },
       resolve(parentValue, args) {
-        return _.find(users, { id: args.id });
+        return axios.get(`http://localhost:3000/users/${args.id}`)
+          .then(resp => resp.data);
       }
     }
   }
